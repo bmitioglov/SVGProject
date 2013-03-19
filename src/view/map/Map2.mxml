@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:map="ru.krus.view.map.*"
+		   width="100%"
+		   height="100%"
+		   borderStyle="solid"
+		   creationComplete="creationCompleteHandler(event)">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.charts.BubbleChart;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.CursorManager;
+			import mx.utils.ObjectUtil;
+
+			import view.Alarm;
+
+			[Embed(source="icons/iconography.swf", symbol="IconHandOpen")]
+			private var _iconHandOpen:Class;
+			[Embed(source="icons/iconography.swf", symbol="IconHandClosed")]
+			private var _iconHandClosed:Class;
+
+
+			[Bindable]
+			protected var shiftX:Number;
+			[Bindable]
+			protected var shiftY:Number;
+
+			[Bindable]
+			private var minScale:Number=0.5;
+
+			protected function ongraphicMouseDown(event:MouseEvent):void
+			{
+				shiftX=event.stageX;
+				shiftY=event.stageY;
+
+
+			}
+
+			private var affineTransform:Matrix;
+
+			// Transformations
+			public function scaleAt(scale:Number, originX:Number, originY:Number):void
+			{
+				// get the transformation matrix of this object
+				affineTransform=container.transform.matrix
+
+
+
+				// move the object to (0/0) relative to the origin
+				affineTransform.translate(-originX, -originY)
+
+
+				// scale
+				affineTransform.scale(scale, scale)
+
+				// move the object back to its original position
+				affineTransform.translate(originX, originY)
+
+
+				// apply the new transformation to the object
+				container.transform.matrix=affineTransform
+			}
+
+
+
+			protected function mouseWheelHandler(event:MouseEvent):void
+			{
+				var x:Number=event.stageX;
+				var y:Number=event.stageY;
+
+				if (event.delta < 0)
+				{
+					if (container.scaleX < 5)
+					{
+						scaleAt(6 / 5, x, y);
+					}
+				}
+				else
+				{
+					if (container.scaleX / 1.2 >= minScale)
+					{
+						trace(container.scaleX + "");
+						scaleAt(5 / 6, x, y);
+						trace(container.scaleX + "");
+					}
+				}
+
+				if (container.x > 0)
+				{
+					affineTransform=container.transform.matrix
+					affineTransform.translate(-container.x, 0);
+					container.transform.matrix=affineTransform;
+				}
+
+				if (container.y > 0)
+				{
+					affineTransform=container.transform.matrix
+					affineTransform.translate(0, -container.y);
+					container.transform.matrix=affineTransform;
+				}
+
+				trace("container.x: " + container.x + "");
+				trace("container.width: " + container.width + "");
+
+				var alarm:Alarm;
+				for (var i:int=0; i < alarmContainer.numChildren; i++)
+				{
+					if (alarmContainer.getChildAt(i) is Alarm)
+					{
+						alarm=alarmContainer.getChildAt(i) as Alarm;
+						alarm.x=(alarm.currElem.x * container.scaleX) + container.x;
+						alarm.y=alarm.currElem.y * container.scaleY - alarm.height - 3 + container.y;
+					}
+				}
+
+
+			}
+
+
+
+			protected function mouseUpHandler(event:MouseEvent):void
+			{
+				container.stopDrag();
+			}
+
+
+			[Bindable]
+			private var x0:Number;
+			[Bindable]
+			private var y0:Number;
+
+			protected function mouseDownHandler(event:MouseEvent):void
+			{
+
+				shiftX=container.x; //event.stageX;
+				shiftY=container.y; //event.stageY;
+
+				x0=-img.width * container.scaleX + this.width;
+				if (x0 > 0)
+				{
+					x0=0;
+				}
+
+				y0=-img.height * container.scaleY + this.height;
+				if (y0 > 0)
+				{
+					y0=0;
+				}
+				if (container.scaleX > minScale)
+				{
+					container.startDrag(false, new Rectangle(x0, y0, img.width * container.scaleX - this.width, img.height * container.scaleY - this.height));
+				}
+
+			}
+
+			protected function dragStartHandler(event:DragEvent):void
+			{
+				trace(container.x);
+			}
+
+			protected function mouseMoveHandler(event:MouseEvent):void
+			{
+
+				if (event.buttonDown)
+				{
+
+//					if (container.x == x0 || container.y == y0)
+//					{
+//						return;
+//					}
+
+					var x:Number=0;
+					var y:Number=0;
+					if (shiftX != container.x)
+					{
+						x=-shiftX + container.x;
+					}
+					if (shiftY != container.y)
+					{
+						y=-shiftY + container.y;
+					}
+
+					var alarm:Alarm;
+					for (var i:int=0; i < alarmContainer.numChildren; i++)
+					{
+						if (alarmContainer.getChildAt(i) is Alarm)
+						{
+							alarm=alarmContainer.getChildAt(i) as Alarm;
+							alarm.x+=x;
+							alarm.y+=y;
+						}
+					}
+					shiftX=container.x;
+					shiftY=container.y;
+				}
+				else
+				{
+					container.stopDrag();
+
+					if (event.stageX >= this.width - 15 && event.stageX <= this.width)
+					{
+						infoPopUp.includeInLayout=true;
+						infoPopUp.displayPopUp=true;
+						rp.dataProvider=alarms();
+					}
+					else
+					{
+						infoPopUp.includeInLayout=false;
+						infoPopUp.displayPopUp=false;
+					}
+				}
+
+
+			}
+
+			[Bindable]
+			private var timer:Timer;
+
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				timer=new Timer(1000);
+				timer.addEventListener(TimerEvent.TIMER, changeColor);
+				//timer.start();
+
+				var scaleX:Number;
+				var scaleY:Number;
+
+				scaleX=this.width / img.width;
+				scaleY=this.height / img.height;
+				if (scaleX < scaleY)
+				{
+					scaleAt(scaleX, 0, 0);
+					minScale=scaleX;
+				}
+				else
+				{
+					scaleAt(scaleY, 0, 0);
+					minScale=scaleY;
+				}
+				trace("minScale: " + minScale);
+			}
+
+			private function alarms():ArrayCollection
+			{
+
+				var alarms:ArrayCollection=new ArrayCollection();
+
+				for (var i:int=0; i < alarmContainer.numChildren; i++)
+				{
+					if (alarmContainer.getChildAt(i) is Alarm)
+					{
+						alarms.addItem(alarmContainer.getChildAt(i));
+					}
+				}
+
+				return alarms;
+			}
+
+			protected function showAlarm(event:MouseEvent):void
+			{
+				var alarm:Alarm=(event.currentTarget as ButtonWithData).d as Alarm;
+				var x:Number=alarm.x + this.width / 2;
+				if (x > 0)
+				{
+					x=0;
+				}
+				container.x=x;
+				container.y=0; //-alarm.y;// + this.height / 2;
+				// нужно пробегаться повсем alarm
+				alarm.x=(alarm.currElem.x * container.scaleX) + container.x;
+				alarm.y=alarm.currElem.y * container.scaleY - alarm.height - 3 + container.y;
+			}
+
+
+			[Bindable]
+			private var uicolor:uint=0x000000;
+
+			private function changeColor(e:Event):void
+			{
+				if (uicolor == 0x000000)
+				{
+					uicolor=0xffffff;
+				}
+				else
+				{
+					uicolor=0x000000;
+				}
+
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<s:LinearGradient id="fill1"
+						  rotation="90">
+			<s:GradientEntry color="0xFFFFFF"/>
+			<s:GradientEntry color="0x336699"/>
+		</s:LinearGradient>
+
+	</fx:Declarations>
+	<s:Group id="alarmContainer"
+			 width="100%"
+			 height="100%">
+
+
+		<s:Group id="container"
+				 width="100%"
+				 height="100%"
+				 dragStart="dragStartHandler(event)"
+				 mouseDown="mouseDownHandler(event)"
+				 mouseMove="mouseMoveHandler(event)"
+				 mouseUp="mouseUpHandler(event)"
+				 mouseWheel="mouseWheelHandler(event)">
+			<s:Image id="img"
+					 source="@Embed(source='assets/fon.png')"/>
+			<s:Graphic id="graphic">				
+			</s:Graphic>
+		</s:Group>
+	</s:Group>
+	<mx:Canvas width="180"
+			   height="100%"
+			   right="0"
+			   top="0">
+		<s:PopUpAnchor id="infoPopUp"
+					   includeInLayout="false"
+					   displayPopUp="false">
+			<s:BorderContainer cornerRadius="5"
+							   backgroundFill="{fill1}"
+							   height="{this.height}"
+							   width="180">
+				<mx:VBox width="100%"
+						 height="100%">
+					<mx:Repeater id="rp">
+						<map:ButtonWithData label="{rp.currentItem.x}"
+											d="{rp.currentItem}"
+											click="showAlarm(event)"/>
+					</mx:Repeater>
+				</mx:VBox>
+			</s:BorderContainer>
+		</s:PopUpAnchor>
+	</mx:Canvas>
+</mx:Canvas>

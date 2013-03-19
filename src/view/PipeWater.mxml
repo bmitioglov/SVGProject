@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map:GraphicElem xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:map="ru.krus.view.map.*"
+				 x="{pipeVO.x}" y="{pipeVO.y}" width="{pipeVO.x2-pipeVO.x +2}"
+				 height="{pipeVO.y2-pipeVO.y +2}" backgroundColor="0x0000ff"
+				 creationComplete="graphicelem1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<s:Resize id="horizontalMove"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.binding.utils.BindingUtils;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+			import mx.graphics.SolidColorStroke;
+			
+			import ru.krus.vo.PipeVO;
+			
+			import spark.primitives.Line;
+			[Bindable]
+			private var pipeVO:PipeVO;
+
+			[Bindable]
+			private var xTo:Number;
+			[Bindable]
+			private var yTo:Number;
+
+			[Bindable]
+			private var xFrom:Number;
+			[Bindable]
+			private var yFrom:Number;
+
+			private var positionOnSpace:String;
+
+
+
+
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				pipeVO=data as PipeVO;
+				//BindingUtils.bindSetter(positionWater, pipeVO, "percentWater");
+				pipeVO.addEventListener("changePipeWater",positionWater);
+				
+				if (pipeVO.y2 == pipeVO.y || pipeVO.x2 == pipeVO.x)
+				{
+					xFrom=0;
+					xTo=pipeVO.x2 - pipeVO.x;
+
+					yFrom=0;
+					yTo=pipeVO.y2 - pipeVO.y;
+				}							
+			}
+
+			private function positionWater(obj:Event=null):void
+			{
+				if (graphic == null)
+				{
+					return;
+				}
+				if (water == null && pipeVO.percentWater2 - pipeVO.percentWater > 0)
+				{
+					water=new Line();
+					if (xFrom == xTo)
+					{
+						water.xFrom=0
+						water.xTo=0;
+						water.yTo=(yTo - yFrom) * pipeVO.percentWater2;
+						water.yFrom=(yTo - yFrom) * pipeVO.percentWater;
+						if (pipeVO.direction == 1)
+						{
+							graphicWater.rotation=180;
+							graphicWater.y=yTo;
+						}
+					}
+					else
+					{
+						water.xFrom=(xTo - xFrom) * pipeVO.percentWater;
+						water.xTo=(xTo - xFrom) * pipeVO.percentWater2;
+						water.yTo=0;
+						water.yFrom=0;
+
+						if (pipeVO.direction == 1)
+						{
+							graphicWater.rotation=180;
+							graphicWater.x=xTo;
+						}
+
+					}
+					water.stroke=new SolidColorStroke(0x0000ff, 4);
+					graphic.numChildren;
+					graphicWater.addElement(water);
+				}
+				else
+				{
+					if (xFrom == xTo)
+					{
+
+						var waterCount:Number=(yTo - yFrom) * (pipeVO.percentWater2 - pipeVO.percentWater);
+						var currWaterCount:Number=water.yTo - water.yFrom;
+						var diff:Number=waterCount - currWaterCount;
+						horizontalMove.heightFrom=water.yTo;
+						horizontalMove.heightTo=water.yTo + diff;
+						horizontalMove.target=water;
+						horizontalMove.play();
+						horizontalMove.addEventListener(EffectEvent.EFFECT_END, function(event:Event):void
+						{
+							water.yTo=horizontalMove.heightTo;
+						});
+
+
+					}
+					else
+					{
+						var waterCount:Number=(xTo - xFrom) * (pipeVO.percentWater2 - pipeVO.percentWater);
+						var currWaterCount:Number=water.xTo - water.xFrom;
+						var diff:Number=waterCount - currWaterCount;
+						horizontalMove.widthFrom=water.xTo;
+						horizontalMove.widthTo=water.xTo + diff;
+						horizontalMove.target=water;
+						horizontalMove.play();
+						horizontalMove.addEventListener(EffectEvent.EFFECT_END, function(event:Event):void
+						{
+							water.xTo=horizontalMove.widthTo;
+						});
+
+
+					}
+				}
+			}
+
+
+
+			private function positionWater2(obj:Object):void
+			{
+				if (graphic == null)
+				{
+					return;
+				}
+				if (water == null && pipeVO.percentWater > 0)
+				{
+					water=new Line();
+					if (xFrom == xTo)
+					{
+						water.xFrom=0
+						water.xTo=0;
+						water.yTo=(yTo - yFrom) * pipeVO.percentWater;
+						water.yFrom=0;
+						if (pipeVO.direction == 1)
+						{
+							graphicWater.rotation=180;
+							graphicWater.y=yTo;
+						}
+					}
+					else
+					{
+						water.xFrom=0
+						water.xTo=(xTo - xFrom) * pipeVO.percentWater;
+						water.yTo=0;
+						water.yFrom=0;
+
+						if (pipeVO.direction == 1)
+						{
+							graphicWater.rotation=180;
+							graphicWater.x=xTo;
+						}
+
+					}
+					water.stroke=new SolidColorStroke(0x0000ff, 4);
+					graphic.numChildren;
+					graphicWater.addElement(water);
+				}
+				else
+				{
+					if (xFrom == xTo)
+					{
+
+						var waterCount:Number=(yTo - yFrom) * pipeVO.percentWater;
+						var currWaterCount:Number=water.yTo - water.yFrom;
+						var diff:Number=waterCount - currWaterCount;
+						horizontalMove.heightFrom=water.yTo;
+						horizontalMove.heightTo=water.yTo + diff;
+						horizontalMove.target=water;
+						horizontalMove.play();
+						horizontalMove.addEventListener(EffectEvent.EFFECT_END, function(event:Event):void
+						{
+							water.yTo=horizontalMove.heightTo;
+						});
+
+
+					}
+					else
+					{
+						var waterCount:Number=(xTo - xFrom) * pipeVO.percentWater;
+						var currWaterCount:Number=water.xTo - water.xFrom;
+						var diff:Number=waterCount - currWaterCount;
+						horizontalMove.widthFrom=water.xTo;
+						horizontalMove.widthTo=water.xTo + diff;
+						horizontalMove.target=water;
+						horizontalMove.play();
+						horizontalMove.addEventListener(EffectEvent.EFFECT_END, function(event:Event):void
+						{
+							water.xTo=horizontalMove.widthTo;
+						});
+
+
+					}
+				}
+			}
+
+			[Bindable]
+			private var water:Line;
+
+			protected function graphicelem1_creationCompleteHandler(event:FlexEvent):void
+			{
+				var l:Line=new Line();
+				l.xFrom=xFrom;
+				l.xTo=xTo;
+				l.yTo=yTo;
+				l.yFrom=yFrom;
+				l.stroke=new SolidColorStroke(0xff0000, 2);
+				graphic.addElement(l);
+			}
+		]]>
+	</fx:Script>
+	<s:Graphic id="graphic"/>
+	<s:Graphic id="graphicWater"/>
+</map:GraphicElem>

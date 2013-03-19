@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map:GraphicElem xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:map="ru.krus.view.map.*"
+				 x="{buildingVO.x}"
+				 y="{buildingVO.y}"
+				 width="92"
+				 height="47">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.binding.utils.BindingUtils;
+			import mx.events.FlexEvent;
+
+			import ru.krus.vo.BuildingVO;
+			
+			[Bindable]
+			private var buildingVO:BuildingVO;
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				buildingVO=data as BuildingVO;
+			}
+
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+
+			}
+		]]>
+	</fx:Script>
+	<s:Graphic toolTip="{buildingVO.toolTip}">
+		<s:Rect id="rect"
+				width="90"
+				height="45">
+			<s:fill>
+				<s:SolidColor color="0xFFFFCC"/>
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke color="0x00ff00"
+									weight="2"/>
+			</s:stroke>
+		</s:Rect>
+	</s:Graphic>
+	<s:Label x="10"
+			 y="10"
+			 text="{buildingVO.text}"/>
+</map:GraphicElem>

@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   width="100%"
+		   height="100%"
+		   xmlns:map="ru.krus.view.map.*">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.charts.BubbleChart;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.CursorManager;
+			import mx.utils.ObjectUtil;
+
+			import view.Alarm;
+
+			[Embed(source="icons/iconography.swf", symbol="IconHandOpen")]
+			private var _iconHandOpen:Class;
+			[Embed(source="icons/iconography.swf", symbol="IconHandClosed")]
+			private var _iconHandClosed:Class;
+
+
+			[Bindable]
+			protected var shiftX:Number;
+			[Bindable]
+			protected var shiftY:Number;
+
+			protected function ongraphicMouseDown(event:MouseEvent):void
+			{
+				shiftX=event.stageX;
+				shiftY=event.stageY;
+				scroller.viewport.x
+
+				//	Alert.show("localX = " + event.localX + " , x = " + shiftX);
+				container.addEventListener(MouseEvent.MOUSE_UP, onMouseClick);
+				container.addEventListener(MouseEvent.MOUSE_MOVE, panMap);
+				container.addEventListener(MouseEvent.MOUSE_DOWN, mouseDown);
+			}
+
+			private function panMap(event:MouseEvent):void
+			{
+
+
+				if (!event.buttonDown)
+				{
+					return;
+				}
+				moveScrollPosition(new Point(shiftX, shiftY), new Point(event.stageX, event.stageY));
+				shiftX=event.stageX;
+				shiftY=event.stageY;
+
+				xH.text=scroller.viewport.horizontalScrollPosition + "";
+				yH.text=scroller.viewport.verticalScrollPosition + "";
+			}
+
+			private function moveScrollPosition(start:Point, end:Point):void
+			{
+				var maxVposition:Number;
+				var maxHposition:Number;
+				var vS:Number;
+				var hS:Number;
+
+				if (container.scaleY > 1)
+				{
+					maxVposition=scroller.viewport.contentHeight * container.scaleY - scroller.height;
+					vS=(start.y - end.y);
+				}
+				else
+				{
+					maxVposition=scroller.viewport.contentHeight - scroller.height;
+					vS=(start.y - end.y);
+				}
+
+				if (container.scaleY > 1)
+				{
+
+					maxHposition=scroller.viewport.contentWidth * container.scaleX - scroller.width;
+					hS=(start.x - end.x);
+
+				}
+				else
+				{
+					maxHposition=scroller.viewport.contentWidth - scroller.width;
+					hS=(start.x - end.x);
+				}
+
+				if (scroller.viewport.verticalScrollPosition + vS > maxVposition)
+				{
+					scroller.viewport.verticalScrollPosition=maxVposition;
+				}
+				else if (scroller.viewport.verticalScrollPosition + vS < 0)
+				{
+					scroller.viewport.verticalScrollPosition=0;
+				}
+				else
+				{
+					scroller.viewport.verticalScrollPosition+=vS;
+				}
+
+				if (scroller.viewport.horizontalScrollPosition + hS > maxHposition)
+				{
+					scroller.viewport.horizontalScrollPosition=maxHposition;
+				}
+				else if (scroller.viewport.horizontalScrollPosition + hS < 0)
+				{
+					scroller.viewport.horizontalScrollPosition=0;
+				}
+				else
+				{
+					scroller.viewport.horizontalScrollPosition+=hS;
+				}
+				//trace(scroller.viewport.horizontalScrollPosition);
+
+
+			}
+
+
+			protected function mouseDown(event:MouseEvent):void
+			{
+				CursorManager.removeAllCursors();
+				CursorManager.setCursor(_iconHandClosed);
+			}
+
+			protected function mouseOver(event:MouseEvent):void
+			{
+				CursorManager.removeAllCursors();
+				CursorManager.setCursor(_iconHandOpen);
+			}
+
+
+			protected function onMouseClick(event:MouseEvent):void
+			{
+				trace("*******************************");
+				container.removeEventListener(MouseEvent.MOUSE_UP, onMouseClick);
+				container.removeEventListener(MouseEvent.MOUSE_MOVE, panMap);
+
+				CursorManager.removeAllCursors();
+				CursorManager.setCursor(_iconHandOpen);
+			}		
+
+			protected function mouseWheelHandler1(event:MouseEvent):void
+			{
+				var x:Number=event.stageX;
+				var y:Number=event.stageY;
+				var x2:Number;
+				var y2:Number;
+
+				if (((scroller.viewport.horizontalScrollPosition + x) / container.scaleX) > scroller.width)
+				{
+					x2=x;
+					x=(scroller.viewport.horizontalScrollPosition + x) / container.scaleX;
+				}
+				else
+				{
+					x2=x;
+					scroller.viewport.horizontalScrollPosition=0;
+				}
+				if (((scroller.viewport.verticalScrollPosition + y) / container.scaleY) > scroller.height)
+				{
+					y2=y;
+					y=(scroller.viewport.verticalScrollPosition + y) / container.scaleY;
+				}
+				else
+				{
+					y2=y;
+					scroller.viewport.verticalScrollPosition=0;
+				}
+
+				var alarm:Alarm;
+				if (event.delta < 0)
+				{
+					if (container.scaleX < 5)
+					{
+						container.scaleX*=1.2;
+						container.scaleY*=1.2;
+					}
+				}
+				else
+				{
+					if (container.scaleX > 0.5)
+					{
+						container.scaleX/=1.2;
+						container.scaleY/=1.2;
+					}
+				}
+
+//				for (var i:int=0; i < alarmContainer.numChildren; i++)
+//				{
+//					if (alarmContainer.getChildAt(i) is Alarm)
+//					{
+//						alarm=alarmContainer.getChildAt(i) as Alarm;
+//						alarm.x=alarm.currElem.x * container.scaleX;
+//						alarm.y=alarm.currElem.y * container.scaleY - alarm.height - 3;
+//
+//					}
+//				}
+
+				if (container.scaleX > 1)
+				{
+					//scroller.viewport.horizontalScrollPosition=x * container.scaleX - x2;
+					//scroller.viewport.verticalScrollPosition=y * container.scaleY - y2;
+
+					scroller.viewport.horizontalScrollPosition=0;
+					scroller.viewport.verticalScrollPosition=0;
+					moveScrollPosition(new Point(x * container.scaleX, y * container.scaleY), new Point(x2, y2));
+
+				}
+
+				trace("x = " + x + " ,y = " + y);
+				trace("Shiftx = " + shiftX + " ,Shifty = " + shiftY);
+				trace(scroller.viewport.horizontalScrollPosition);
+				xH.text=scroller.viewport.horizontalScrollPosition + "";
+				yH.text=scroller.viewport.verticalScrollPosition + "";
+			}
+
+			protected function mouseMoveHandler(event:MouseEvent):void
+			{
+				if (event.buttonDown )//|| alarmContainer.numChildren == 1)
+				{
+					return;
+				}
+
+				if (event.stageX >= this.width - 15 && event.stageX <= this.width)
+				{
+					infoPopUp.includeInLayout=true;
+					infoPopUp.displayPopUp=true;
+					rp.dataProvider=alarms();
+				}
+				else
+				{
+					infoPopUp.includeInLayout=false;
+					infoPopUp.displayPopUp=false;
+				}
+
+			}
+
+			private function alarms():ArrayCollection
+			{
+
+				var alarms:ArrayCollection=new ArrayCollection();
+
+//				for (var i:int=0; i < alarmContainer.numChildren; i++)
+//				{
+//					if (alarmContainer.getChildAt(i) is Alarm)
+//					{
+//						alarms.addItem(alarmContainer.getChildAt(i));
+//					}
+//				}
+
+				return alarms;
+			}
+
+			protected function showAlarm(event:MouseEvent):void
+			{
+				var alarm:Alarm=(event.currentTarget as ButtonWithData).d as Alarm;
+				scroller.viewport.horizontalScrollPosition=alarm.currElem.x * container.scaleX - this.width / 2;
+				scroller.viewport.verticalScrollPosition=alarm.currElem.y * container.scaleY - this.height / 2;
+			}
+
+
+			private var affineTransform:Matrix;
+
+			// Transformations
+			public function scaleAt(scale:Number, originX:Number, originY:Number):void
+			{
+				// get the transformation matrix of this object
+				affineTransform=container.transform.matrix
+
+
+				// move the object to (0/0) relative to the origin
+				affineTransform.translate(-originX, -originY)
+
+				// scale
+				affineTransform.scale(scale, scale)
+
+				// move the object back to its original position
+				affineTransform.translate(originX, originY)
+
+
+				// apply the new transformation to the object
+				container.transform.matrix=affineTransform
+			}
+
+
+
+			protected function mouseWheelHandler(event:MouseEvent):void
+			{				
+				var x:Number=event.stageX;
+				var y:Number=event.stageY;
+				
+				if (event.delta < 0)
+				{
+					if (container.scaleX < 5)
+					{
+						scaleAt(6/5,x,y);
+					}
+				}
+				else
+				{
+					if (container.scaleX > 0.5)
+					{
+						scaleAt(5/6,x,y);
+					}
+				}
+
+			}
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<s:LinearGradient rotation="90"
+						  id="fill1">
+			<s:GradientEntry color="0xFFFFFF"/>
+			<s:GradientEntry color="0x336699"/>
+		</s:LinearGradient>
+
+	</fx:Declarations>
+	<s:Scroller id="scroller"
+				width="100%"
+				height="100%"
+				verticalScrollPolicy="on"
+				horizontalScrollPolicy="on">
+
+		<!--s:Group id="alarmContainer"
+				 width="100%"
+				 height="100%"
+				 horizontalCenter="{Number(xH.text)}"
+				 verticalScrollPosition="{Number(yH.text)}"-->
+			<s:Group id="container"
+					 width="100%"
+					 height="100%"
+					 mouseWheel="mouseWheelHandler(event)"
+					 mouseMove="mouseMoveHandler(event)"
+					 mouseDown="ongraphicMouseDown(event)">
+				<s:Image source="@Embed(source='assets/fon.png')"/>
+				<s:Graphic id="graphic">
+					<s:Line xTo="303"
+							xFrom="300"
+							yTo="303"
+							yFrom="300">
+						<s:stroke>
+							<s:SolidColorStroke color="#ff0000"
+												weight="3"/>
+						</s:stroke>
+					</s:Line>
+					<s:Line xTo="503"
+							xFrom="500"
+							yTo="503"
+							yFrom="500">
+						<s:stroke>
+							<s:SolidColorStroke color="#ff0000"
+												weight="3"/>
+						</s:stroke>
+					</s:Line>
+					<s:Line xTo="1103"
+							xFrom="1100"
+							yTo="603"
+							yFrom="600">
+						<s:stroke>
+							<s:SolidColorStroke color="#ff0000"
+												weight="3"/>
+						</s:stroke>
+					</s:Line>
+
+				</s:Graphic>
+			<!--/s:Group-->
+		</s:Group>
+	</s:Scroller>
+
+	<mx:Canvas width="180"
+			   height="100%"
+			   right="0"
+			   top="0">
+		<s:PopUpAnchor id="infoPopUp"
+					   includeInLayout="false"
+					   displayPopUp="false">
+			<s:BorderContainer cornerRadius="5"
+							   backgroundFill="{fill1}"
+							   height="{this.height}"
+							   width="180">
+				<mx:VBox width="100%"
+						 height="100%">
+					<mx:Repeater id="rp">
+						<map:ButtonWithData label="{rp.currentItem.x}"
+											d="{rp.currentItem}"
+											click="showAlarm(event)"/>
+					</mx:Repeater>
+				</mx:VBox>
+			</s:BorderContainer>
+		</s:PopUpAnchor>
+	</mx:Canvas>
+	<s:TextInput x="100"
+				 y="500"
+				 id="xH"/>
+	<s:TextInput x="250"
+				 y="500"
+				 id="yH"/>
+	<s:Button x="450"
+			  y="500"
+			  keyDown="{scroller.viewport.horizontalScrollPosition = Number(xH.text);scroller.viewport.verticalScrollPosition = Number(yH.text);}"/>
+
+</mx:Canvas>

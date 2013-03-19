@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map:GraphicElem xmlns:fx="http://ns.adobe.com/mxml/2009"
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:mx="library://ns.adobe.com/flex/mx"
+				 xmlns:map="ru.krus.view.map.*"
+				 width="20"
+				 height="20"
+				 x="{angleVO.x}"
+				 y="{angleVO.y}"
+				 toolTip="Test"
+				 toolTipShow="toolTipShowHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>		
+	
+	<fx:Metadata>
+		[Event(name="showAlarm", type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.ToolTip;
+			import mx.core.IUIComponent;
+			import mx.events.ToolTipEvent;
+			import mx.managers.ToolTipManager;
+			
+			import ru.krus.vo.AngleVO;
+
+			[Bindable]
+			private var angleVO:AngleVO;
+
+			private var tip:ToolTip;
+			private var s:String;
+			
+
+			override public function set data(value:Object):void
+			{
+				super.data=value;
+				angleVO=data as AngleVO;
+			}
+
+
+
+			private function showTip(event:Object):void
+			{
+				s="My ToolTip";
+				Event
+
+				// Position the ToolTip to the right of the current target.
+				tip=ToolTipManager.createToolTip(s, event.currentTarget.x + event.currentTarget.width + 10, event.currentTarget.y, null, IUIComponent(event.currentTarget)) as ToolTip;
+			}
+			
+			protected function toolTipShowHandler(event:ToolTipEvent):void
+			{
+				// TODO Auto-generated method stub
+				dispatchEvent(new Event("showAlarm"));
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Graphic>
+		<s:Ellipse width="18"
+				   height="18">
+			<s:stroke>
+				<s:SolidColorStroke color="0x000000"
+									weight="2"/>
+			</s:stroke>
+		</s:Ellipse>
+	</s:Graphic>
+</map:GraphicElem>

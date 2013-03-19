@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexProperties enableServiceManager="false" flexServerFeatures="4" flexServerType="2" serverContextRoot="/blazeds" serverRoot="D:/work/blazedsTurnkey/blazeds-turnkey-4.0.0.14931/tomcat/webapps/blazeds" serverRootURL="http://localhost:8400/blazeds" toolCompile="true" useServerFlexSDK="false" version="2"/>
