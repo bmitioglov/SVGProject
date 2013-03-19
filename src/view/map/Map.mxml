@@ -4,7 +4,7 @@
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
 		   width="100%"
 		   height="100%"
-		   xmlns:map="ru.krus.view.map.*">
+		   xmlns:map="view.map.*">
 
 	<fx:Script>
 		<![CDATA[

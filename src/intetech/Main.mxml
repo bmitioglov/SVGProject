@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:debugger="com.demonsters.debugger.*"
+			   xmlns:local="*"
+			   xmlns:map="view.map.*"
+			   width="100%"
+			   height="100%"
+			   creationComplete="creationCompleteHandler(event)">
+	<fx:Style source="default.css"/>
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			//import com.esri.ags.Graphic;
+			
+			import flash.text.engine.ElementFormat;
+			import flash.text.engine.GraphicElement;
+			import flash.text.engine.TextBlock;
+			import flash.text.engine.TextElement;
+			import flash.text.engine.TextLine;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.DragSource;
+			import mx.core.UIComponent;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.DragManager;
+			
+			import spark.primitives.Line;
+			
+			import proxy.MainProxy;
+			
+			import view.Alarm;
+			import view.Angle;
+			import view.PipeWater;
+			import view.map.GraphicElem;
+			
+			import vo.AngleVO;
+			import vo.BaseVO;
+			import vo.BuildingVO;
+			import vo.PipeVO;
+			
+			
+			[Bindable]
+			private var pipe:PipeVO;
+			
+			[Bindable]
+			private var building:BuildingVO;
+			
+			[Bindable]
+			private var angle:AngleVO;
+			
+			private var proxyObj:MainProxy=new MainProxy();
+			
+			[Bindable]
+			private var timer:Timer;
+			
+			[Bindable]
+			private var pipes:ArrayCollection=new ArrayCollection();
+			
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				var obj:GraphicElem;
+				
+				
+				for each (var elem:BaseVO in proxyObj.getList())
+				{
+					obj=new ClassFactory(elem.type).newInstance() as GraphicElem;
+					
+					if (obj is Angle)
+					{
+						Angle(obj).addEventListener("showAlarm", showAlarm);
+					}
+					else if (obj is PipeWater)
+					{
+						pipes.addItem(elem);
+					}
+					
+					obj.data=elem;
+					map.graphic.addElement(obj);
+					
+				}
+				
+				building=new BuildingVO();
+				building.x=50;
+				building.y=100;
+				building.width=90;
+				building.height=45;
+				building.color=0x00FF00;
+				building.weight=2;
+				building.toolTip="УПН";
+				building.text="УПН111";
+				
+				obj=new ClassFactory(building.type).newInstance() as GraphicElem;
+				obj.data=building;
+				map.graphic.addElement(obj);
+				
+				
+				var pipe:PipeVO=pipes.getItemAt(0) as PipeVO;
+				pipe.percentWater=0;
+				pipe.percentWater2=1;
+				pipe.direction=1;
+				pipe=pipes.getItemAt(1) as PipeVO;
+				pipe.percentWater=1;
+				pipe.percentWater2=1;
+				pipe.direction=2;
+				
+				
+				
+				timer=new Timer(1000);
+				timer.addEventListener(TimerEvent.TIMER, changeWater);
+				timer.start();
+				
+				
+			}
+			
+			private var direction:int=1;
+			
+			
+			private function changeWater(e:Event):void
+			{
+				//				for each (var pipe:PipeVO in pipes)
+				//				{
+				//					pipe.percentWater=Math.random() > 0.5 ? 1 : 0.5;
+				//				}
+				
+				var pipe:PipeVO=pipes.getItemAt(0) as PipeVO;
+				pipe.dispatchEvent(new Event("changePipeWater"));
+				pipe.percentWater+=0.1 * direction;
+				//pipe.percentWater2-=0.1 * direction;
+				pipe=pipes.getItemAt(1) as PipeVO;
+				pipe.percentWater=1 - PipeVO(pipes.getItemAt(0)).percentWater;
+				
+				if (pipe.percentWater > 0.9 || PipeVO(pipes.getItemAt(0)).percentWater > 0.9)
+				{
+					direction=-direction;
+				}
+			}
+			
+			
+			private function showAlarm(event:Event):void
+			{
+				
+				var gElem:GraphicElem=event.currentTarget as GraphicElem;
+				var alarm:Alarm=new Alarm();
+				alarm.currElem=gElem;
+				map.alarmContainer.addElement(alarm);
+				
+				alarm.x=(gElem.x * map.container.scaleX) + map.container.x;
+				alarm.y=gElem.y * map.container.scaleY - alarm.height - 3 + map.container.y;
+				
+				
+			}
+			
+			
+			private function addCh(count:Number):void
+			{
+				//Alert.show("test");
+				var obj:GraphicElem;
+				
+				for (var i:int=0; i < count; i++)
+				{
+					pipe=new PipeVO();
+					pipe.x2=Math.round(Math.random() * 1380);
+					pipe.y2=Math.round(Math.random() * 1070);
+					if (pipe.x2 % 2 == 0)
+					{
+						pipe.x=pipe.x2;
+						pipe.y=pipe.y2 + 100;
+					}
+					else
+					{
+						pipe.x=pipe.x2 + 100;
+						pipe.y=pipe.y2;
+					}
+					pipe.diameter=1000;
+					pipe.weight=10000;
+					
+					obj=new ClassFactory(pipe.type).newInstance() as GraphicElem;
+					
+					obj.data=pipe;
+					map.graphic.addElement(obj);
+					
+				}
+				
+				allCount.text=Number(allCount.text) + count + "";
+			}
+		]]>
+	</fx:Script>
+	<mx:HDividedBox y="30"
+					width="600"
+					height="530">
+		<map:Map2 id="map"
+				  width="100%"
+				  height="100%"
+				  horizontalScrollPolicy="off"
+				  verticalScrollPolicy="off"/>
+	</mx:HDividedBox>
+	<s:TextInput id="count"/>
+	<s:Button x="200"
+			  click="{addCh(Number(count.text))}"/>
+	<s:Label id="allCount"
+			 x="400"
+			 text="{}"/>
+	
+	
+</s:Application>

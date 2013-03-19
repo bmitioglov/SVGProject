@@ -1,4 +1,4 @@
-package ru.krus.vo
+package vo
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;

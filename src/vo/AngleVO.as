@@ -1,6 +1,6 @@
-package ru.krus.vo
+package vo
 {
-	import ru.krus.view.Angle;
+	import view.Angle;
 
 	//угол
 	[Bindable]

@@ -1,6 +1,6 @@
-package ru.krus.vo
+package vo
 {
-	import ru.krus.view.Building;
+	import view.Building;
 
 	[Bindable]
 	public class BuildingVO extends BaseVO 

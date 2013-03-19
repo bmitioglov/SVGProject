@@ -1,4 +1,4 @@
-package ru.krus.vo
+package vo
 {
 	//задвижка
 	public class ValveVO

@@ -2,7 +2,7 @@
 <map:GraphicElem xmlns:fx="http://ns.adobe.com/mxml/2009"
 				 xmlns:s="library://ns.adobe.com/flex/spark"
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
-				 xmlns:map="ru.krus.view.map.*"
+				 xmlns:map="view.map.*"
 				 x="{pipeVO.x}" y="{pipeVO.y}" width="{pipeVO.x2-pipeVO.x +2}"
 				 height="{pipeVO.y2-pipeVO.y +2}" backgroundColor="0x0000ff"
 				 creationComplete="graphicelem1_creationCompleteHandler(event)">
@@ -16,7 +16,7 @@
 			import mx.events.FlexEvent;
 			import mx.graphics.SolidColorStroke;
 			
-			import ru.krus.vo.PipeVO;
+			import vo.PipeVO;
 			
 			import spark.primitives.Line;
 			[Bindable]

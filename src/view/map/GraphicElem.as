@@ -1,4 +1,4 @@
-package ru.krus.view.map
+package view.map
 {
 	import spark.components.BorderContainer;
 

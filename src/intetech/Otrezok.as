@@ -1,17 +1,27 @@
-package
+package intetech
 {
+	import view.PipeWater;
+	
+	import vo.PipeVO;
+
 	[RemoteClass(alias="intetech.Otrezok")]
 	
 	[Bindable]
-	public class Otrezok
+	public class Otrezok extends PipeVO
 	{
 		
-		public var x1:Number;
-		public var y1:Number;
-		public var x2:Number; 
-		public var y2:Number;
+		public override var x:Number;
+		public override var y:Number;
+		public override var x2:Number; 
+		public override var y2:Number;
 		
 		
+		public function Otrezok()
+		{
+			type=PipeWater;
+		}
+		
+
 		
 		/*public function Otrezok(x1:Number , y1:Number , x2:Number , y2:Number){
 			ax1 = x1;

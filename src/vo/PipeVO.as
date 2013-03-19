@@ -1,6 +1,6 @@
-package ru.krus.vo
+package vo
 {
-	import ru.krus.view.PipeWater;
+	import view.PipeWater;
 
 	[Bindable]
 	public class PipeVO extends BaseVO

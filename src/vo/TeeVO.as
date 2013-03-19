@@ -1,4 +1,4 @@
-package ru.krus.vo
+package vo
 {
 	public class TeeVO
 	{
