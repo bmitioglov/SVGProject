@@ -113,6 +113,7 @@ package proxy
 			otr.y = 520;
 			otr.x2 = 900;
 			otr.y2 = 600;
+			otr.id = 5;
 			otr.diameter=1000;
 			otr.weight = 10000;
 			list.addItem(otr);

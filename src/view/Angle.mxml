@@ -40,16 +40,6 @@
 				angleVO=data as AngleVO;
 			}
 
-
-
-			/*private function showTip(event:Object):void
-			{
-				s="My ToolTip";
-				Event
-
-				// Position the ToolTip to the right of the current target.
-				tip=ToolTipManager.createToolTip(s, event.currentTarget.x + event.currentTarget.width + 10, event.currentTarget.y, null, IUIComponent(event.currentTarget)) as ToolTip;
-			}*/
 			
 			protected function toolTipShowHandler(event:ToolTipEvent):void
 			{

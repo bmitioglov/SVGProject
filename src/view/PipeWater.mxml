@@ -3,9 +3,10 @@
 				 xmlns:s="library://ns.adobe.com/flex/spark"
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
 				 xmlns:map="view.map.*"
-				 x="{pipeVO.x}" y="{pipeVO.y}"   backgroundAlpha=".100" width="20" height="20"
-				 toolTip="Труба"
-				 toolTipShow="graphicelem1_toolTipShowHandler(event)"
+				 x="{pipeVO.x}" y="{pipeVO.y}" backgroundAlpha=".0" height="0" width="0" borderAlpha=".0"
+				 toolTip="ID: {pipeVO.id}"
+				 mouseOver="graphicelem1_mouseOverHandler(event)"
+				 mouseOut="graphicelem1_mouseOutHandler(event)"
 				 creationComplete="graphicelem1_creationCompleteHandler(event)">
 	<fx:Declarations>
 		<s:Resize id="horizontalMove"/>
@@ -33,8 +34,12 @@
 			private var xFrom:Number;
 			[Bindable]
 			private var yFrom:Number;
-
+			
+			private var idPipe:Number;
+			
 			private var positionOnSpace:String;
+			
+			private var l:Line;
 
 			//backgroundColor="0x0000ff"
 			
@@ -49,14 +54,13 @@
 				//BindingUtils.bindSetter(positionWater, pipeVO, "percentWater");
 				pipeVO.addEventListener("changePipeWater",positionWater);
 				
-				/*if (pipeVO.y2 == pipeVO.y || pipeVO.x2 == pipeVO.x)
-				{*/
-					xFrom=0;
-					xTo=pipeVO.x2 - pipeVO.x;
+				xFrom=0;
+				xTo=pipeVO.x2 - pipeVO.x;
 
-					yFrom=0;
-					yTo=pipeVO.y2 - pipeVO.y;
-				//}							
+				yFrom=0;
+				yTo=pipeVO.y2 - pipeVO.y;
+				
+				idPipe = pipeVO.id;
 			}
 
 			private function positionWater(obj:Event=null):void
@@ -222,7 +226,7 @@
 
 			protected function graphicelem1_creationCompleteHandler(event:FlexEvent):void
 			{
-				var l:Line=new Line();
+				l=new Line();
 				l.xFrom=xFrom;
 				l.xTo=xTo;
 				l.yTo=yTo;
@@ -233,10 +237,18 @@
 			}
 			
 			
-			protected function graphicelem1_toolTipShowHandler(event:ToolTipEvent):void
+		
+			
+			protected function graphicelem1_mouseOverHandler(event:MouseEvent):void
 			{
 				// TODO Auto-generated method stub
-				this.width = 5;
+				l.stroke=new SolidColorStroke(0xff0000,4);
+			}
+			
+			protected function graphicelem1_mouseOutHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				l.stroke=new SolidColorStroke(0xff0000, 2);
 			}
 			
 		]]>

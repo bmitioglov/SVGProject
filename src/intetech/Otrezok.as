@@ -14,7 +14,7 @@ package intetech
 		public override var y:Number;
 		public override var x2:Number; 
 		public override var y2:Number;
-		
+		public override var id:Number;
 		
 		public function Otrezok()
 		{
