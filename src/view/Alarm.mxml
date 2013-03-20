@@ -4,12 +4,15 @@
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
 				 xmlns:map="view.map.*"
 				 width="18"
-				 height="18">
+				 height="18"
+				 backgroundAlpha=".0"
+				 borderAlpha=".0">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
+			import view.map.GraphicElem;
 			
 			public var currElem:GraphicElem;
 		]]>

@@ -3,8 +3,9 @@
 				 xmlns:s="library://ns.adobe.com/flex/spark"
 				 xmlns:mx="library://ns.adobe.com/flex/mx"
 				 xmlns:map="view.map.*"
-				 x="{pipeVO.x}" y="{pipeVO.y}" width="{pipeVO.x2-pipeVO.x +2}"
-				 height="{pipeVO.y2-pipeVO.y +2}" backgroundColor="0x0000ff"
+				 x="{pipeVO.x}" y="{pipeVO.y}"   backgroundAlpha=".100" width="20" height="20"
+				 toolTip="Труба"
+				 toolTipShow="graphicelem1_toolTipShowHandler(event)"
 				 creationComplete="graphicelem1_creationCompleteHandler(event)">
 	<fx:Declarations>
 		<s:Resize id="horizontalMove"/>
@@ -14,11 +15,12 @@
 			import mx.binding.utils.BindingUtils;
 			import mx.events.EffectEvent;
 			import mx.events.FlexEvent;
+			import mx.events.ToolTipEvent;
 			import mx.graphics.SolidColorStroke;
 			
-			import vo.PipeVO;
-			
 			import spark.primitives.Line;
+			
+			import vo.PipeVO;
 			[Bindable]
 			private var pipeVO:PipeVO;
 
@@ -34,8 +36,10 @@
 
 			private var positionOnSpace:String;
 
-
-
+			//backgroundColor="0x0000ff"
+			
+			//width="{pipeVO.x2-pipeVO.x +2}"
+			//height="{pipeVO.y2-pipeVO.y +2}"
 
 
 			override public function set data(value:Object):void
@@ -45,14 +49,14 @@
 				//BindingUtils.bindSetter(positionWater, pipeVO, "percentWater");
 				pipeVO.addEventListener("changePipeWater",positionWater);
 				
-				if (pipeVO.y2 == pipeVO.y || pipeVO.x2 == pipeVO.x)
-				{
+				/*if (pipeVO.y2 == pipeVO.y || pipeVO.x2 == pipeVO.x)
+				{*/
 					xFrom=0;
 					xTo=pipeVO.x2 - pipeVO.x;
 
 					yFrom=0;
 					yTo=pipeVO.y2 - pipeVO.y;
-				}							
+				//}							
 			}
 
 			private function positionWater(obj:Event=null):void
@@ -90,7 +94,8 @@
 						}
 
 					}
-					water.stroke=new SolidColorStroke(0x0000ff, 4);
+					//water.stroke=new SolidColorStroke(0x0000ff, 4);
+					water.stroke=new SolidColorStroke(0x000000, 4);
 					graphic.numChildren;
 					graphicWater.addElement(water);
 				}
@@ -169,7 +174,8 @@
 						}
 
 					}
-					water.stroke=new SolidColorStroke(0x0000ff, 4);
+					//water.stroke=new SolidColorStroke(0x0000ff, 4);
+					water.stroke=new SolidColorStroke(0x000000, 4);
 					graphic.numChildren;
 					graphicWater.addElement(water);
 				}
@@ -221,9 +227,18 @@
 				l.xTo=xTo;
 				l.yTo=yTo;
 				l.yFrom=yFrom;
+				//l.stroke=new SolidColorStroke(0xff0000, 2);
 				l.stroke=new SolidColorStroke(0xff0000, 2);
 				graphic.addElement(l);
 			}
+			
+			
+			protected function graphicelem1_toolTipShowHandler(event:ToolTipEvent):void
+			{
+				// TODO Auto-generated method stub
+				this.width = 5;
+			}
+			
 		]]>
 	</fx:Script>
 	<s:Graphic id="graphic"/>

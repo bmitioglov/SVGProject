@@ -41,7 +41,7 @@ package proxy
 			pipe=new PipeVO();
 			pipe.x=240;
 			pipe.y=130;
-			pipe.x2=240;
+			pipe.x2=240; 
 			pipe.y2=180;
 			pipe.diameter=1000;
 			pipe.weight=10000;
@@ -57,7 +57,7 @@ package proxy
 			pipe=new PipeVO();
 			pipe.x=240;
 			pipe.y=200;
-			pipe.x2=240;
+			pipe.x2=300;   
 			pipe.y2=290;
 			pipe.diameter=1000;
 			pipe.weight=10000;
@@ -107,7 +107,18 @@ package proxy
 			otr.diameter=1000;
 			otr.weight = 10000;
 			list.addItem(otr);
-
+			
+			otr = new Otrezok();
+			otr.x = 800;
+			otr.y = 520;
+			otr.x2 = 900;
+			otr.y2 = 600;
+			otr.diameter=1000;
+			otr.weight = 10000;
+			list.addItem(otr);
+			
+			
+			
 			return list;
 		}
 	}

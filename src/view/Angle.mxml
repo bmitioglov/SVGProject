@@ -8,7 +8,9 @@
 				 x="{angleVO.x}"
 				 y="{angleVO.y}"
 				 toolTip="Test"
-				 toolTipShow="toolTipShowHandler(event)">
+				 toolTipShow="toolTipShowHandler(event)"
+				 borderAlpha=".0"
+				 backgroundAlpha=".0">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>		
@@ -40,14 +42,14 @@
 
 
 
-			private function showTip(event:Object):void
+			/*private function showTip(event:Object):void
 			{
 				s="My ToolTip";
 				Event
 
 				// Position the ToolTip to the right of the current target.
 				tip=ToolTipManager.createToolTip(s, event.currentTarget.x + event.currentTarget.width + 10, event.currentTarget.y, null, IUIComponent(event.currentTarget)) as ToolTip;
-			}
+			}*/
 			
 			protected function toolTipShowHandler(event:ToolTipEvent):void
 			{

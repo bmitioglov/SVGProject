@@ -71,7 +71,7 @@
 				var x:Number=event.stageX;
 				var y:Number=event.stageY;
 
-				if (event.delta < 0)
+				if (event.delta > 0)
 				{
 					if (container.scaleX < 5)
 					{

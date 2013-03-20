@@ -2,36 +2,40 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   xmlns:debugger="com.demonsters.debugger.*"
 			   xmlns:local="*"
 			   xmlns:map="view.map.*"
 			   width="100%"
 			   height="100%"
 			   creationComplete="creationCompleteHandler(event)">
 	<fx:Style source="default.css"/>
+	
 	<fx:Declarations>
+		<!--setup the connection to the Java class-->
+		<mx:RemoteObject
+			id="PathsService"
+			destination="pathsservice"
+			showBusyCursor="true"
+			>
+			
+			<mx:method name="getPaths" 
+					   result="resultGetPaths(event)" 
+					   fault="faultGetPaths(event)"/>
+		</mx:RemoteObject>
 		
+		<s:Rect  bottomLeftRadiusX="0" bottomLeftRadiusY="0" bottomRightRadiusX="100" bottomRightRadiusY="100" id="rect"/> 
 	</fx:Declarations>
 	<fx:Script>
 		<![CDATA[
 			//import com.esri.ags.Graphic;
 			
-			import flash.text.engine.ElementFormat;
-			import flash.text.engine.GraphicElement;
-			import flash.text.engine.TextBlock;
-			import flash.text.engine.TextElement;
-			import flash.text.engine.TextLine;
+
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
-			import mx.core.DragSource;
-			import mx.core.UIComponent;
-			import mx.events.DragEvent;
 			import mx.events.FlexEvent;
-			import mx.managers.CursorManager;
-			import mx.managers.DragManager;
-			
-			import spark.primitives.Line;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
 			
 			import proxy.MainProxy;
 			
@@ -44,7 +48,6 @@
 			import vo.BaseVO;
 			import vo.BuildingVO;
 			import vo.PipeVO;
-			
 			
 			[Bindable]
 			private var pipe:PipeVO;
@@ -64,6 +67,38 @@
 			private var pipes:ArrayCollection=new ArrayCollection();
 			
 			
+			public function resultGetPaths(event:ResultEvent):void {
+				
+				var pathsArrCol:ArrayCollection = event.result as ArrayCollection;
+				//Alert.show( ObjectUtil.toString(event.result) );
+				//otr = pathsArrCol.getItemAt(0) as Otrezok;
+				
+				//Alert.show(ObjectUtil.toString(pathsArrCol.length));
+				//Alert.show(ObjectUtil.toString(otr.x1)+" "+ObjectUtil.toString(otr.y1)+" "+ObjectUtil.toString(otr.x2)+" "+ObjectUtil.toString(otr.y2));
+				
+				trace("Length = "+pathsArrCol.length);
+				for each (var elem:BaseVO in pathsArrCol)
+				{
+					var obj:GraphicElem;
+					trace("Type = "+elem.type);
+					obj=new ClassFactory(elem.type).newInstance() as GraphicElem;
+		
+					
+					obj.data=elem;
+					map.graphic.addElement(obj);
+					
+				}
+				
+			} 
+			
+			
+			private function faultGetPaths(event:FaultEvent):void{
+				
+				Alert.show( ObjectUtil.toString(event.fault) );
+					
+			}
+			
+			
 			protected function creationCompleteHandler(event:FlexEvent):void
 			{
 				var obj:GraphicElem;
@@ -75,7 +110,7 @@
 					
 					if (obj is Angle)
 					{
-						Angle(obj).addEventListener("showAlarm", showAlarm);
+						Angle(obj).addEventListener("showAlarm", showAlarm);  
 					}
 					else if (obj is PipeWater)
 					{
@@ -94,8 +129,8 @@
 				building.height=45;
 				building.color=0x00FF00;
 				building.weight=2;
-				building.toolTip="УПН";
-				building.text="УПН111";
+				building.toolTip="Station 1";
+				building.text="Station";
 				
 				obj=new ClassFactory(building.type).newInstance() as GraphicElem;
 				obj.data=building;
@@ -144,7 +179,7 @@
 			}
 			
 			
-			private function showAlarm(event:Event):void
+			private function showAlarm(event:Event):void //показывает тревогу на угле
 			{
 				
 				var gElem:GraphicElem=event.currentTarget as GraphicElem;
@@ -159,7 +194,7 @@
 			}
 			
 			
-			private function addCh(count:Number):void
+			/*private function addCh(count:Number):void
 			{
 				//Alert.show("test");
 				var obj:GraphicElem;
@@ -190,7 +225,7 @@
 				}
 				
 				allCount.text=Number(allCount.text) + count + "";
-			}
+			}*/
 		]]>
 	</fx:Script>
 	<mx:HDividedBox y="30"
@@ -202,12 +237,13 @@
 				  horizontalScrollPolicy="off"
 				  verticalScrollPolicy="off"/>
 	</mx:HDividedBox>
-	<s:TextInput id="count"/>
+	<!--<s:TextInput id="count"/>
 	<s:Button x="200"
 			  click="{addCh(Number(count.text))}"/>
+	
 	<s:Label id="allCount"
 			 x="400"
-			 text="{}"/>
-	
+			 text="{}"/>-->
+	<s:Button  label="Загрузить SVG" click="PathsService.getPaths()"/>	
 	
 </s:Application>
